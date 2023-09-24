@@ -35,6 +35,13 @@ class LexerTest : FunSpec({
             tokenStub(type = SEMICOLON),
         )
     }
+    test("func value") {
+        testByAllContainsOrdered(
+            test, "SELECT now()",
+            tokenStub(type = SELECT), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION), tokenStub(type = L_PAR), tokenStub(type = R_PAR),
+        )
+    }
     test("no semicolon") {
         testByAllContainsOrdered(
             test, "SELECT * from users",

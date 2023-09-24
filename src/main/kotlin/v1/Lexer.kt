@@ -1,8 +1,6 @@
 package v1
 
-import debug.PrintTable
 import java.util.*
-import kotlin.collections.Collection
 
 open class Lexer {
     open fun analyse(sql: String): Queue<Token> = lex(sql)
@@ -46,7 +44,7 @@ fun lex(sql: String): Queue<Token> {
 
         when (char) {
             ' ', ',', ';', '(', ')' -> {
-                println("$index + '$char'")
+//                println("$index + '$char'")
                 if (tokenBuilder.isNotEmpty()) {
                     rsl += makeToken(index - 1, tokenBuilder.toString())
                     tokenBuilder = StringBuilder()
