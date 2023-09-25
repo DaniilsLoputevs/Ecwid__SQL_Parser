@@ -6,9 +6,9 @@ import v1.TokenType.*
 /**
  * testcases:
  * + "SELECT * from users;" // canonical
- * - "SELECT 'text_text_value'" // text value
- * - "SELECT now()" // func value
- * - "SELECT 10" // number value
+ * + "SELECT 'text_text_value'" // text value
+ * + "SELECT now()" // func value
+ * + "SELECT 10" // number value
  * + "SELECT * from users" // no semicolon
  * + "SELECT id from users" // no semicolon + one field
  * - "SELECT id, name from users" // no semicolon + 2 fields field
@@ -19,7 +19,7 @@ import v1.TokenType.*
  * - "SELECT CONCAT('Hello, ', name) users;" // func + arg: string value + column
  *
  *
- * - "SELECT    id,\r  name  \r\n  from \n users" // no semicolon + 2 fields field + space & tab chars
+ * + "SELECT    id,\r  name  \r\n  from \n users" // no semicolon + 2 fields field + space & tab chars
  */
 class LexerTest : FunSpec({
     val test = Lexer()
@@ -33,6 +33,20 @@ class LexerTest : FunSpec({
             tokenStub(type = FROM), tokenStub(type = SPACE),
             tokenStub(type = EXPRESSION),
             tokenStub(type = SEMICOLON),
+        )
+    }
+    test("text value") {
+        testByAllContainsOrdered(
+            debug, "SELECT 'text_text_value'",
+            tokenStub(type = SELECT), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION, text = "'text_text_value'"),
+        )
+    }
+    test("number value") {
+        testByAllContainsOrdered(
+            debug, "SELECT 10",
+            tokenStub(type = SELECT), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION, text = "10"),
         )
     }
     test("func value") {
@@ -56,6 +70,16 @@ class LexerTest : FunSpec({
             test, "SELECT id from users",
             tokenStub(type = SELECT), tokenStub(type = SPACE),
             tokenStub(type = EXPRESSION), tokenStub(type = SPACE),
+            tokenStub(type = FROM), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION),
+        )
+    }
+    test("no semicolon + 2 fields field + space & tab chars") {
+        testByAllContainsOrdered(
+            debug, "SELECT    id,\r  name  \r\n  from \n users",
+            tokenStub(type = SELECT), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION),tokenStub(type = COMMA), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION),tokenStub(type = SPACE),
             tokenStub(type = FROM), tokenStub(type = SPACE),
             tokenStub(type = EXPRESSION),
         )

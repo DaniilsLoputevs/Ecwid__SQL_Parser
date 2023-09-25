@@ -10,6 +10,8 @@ import java.util.*
 
 class LexerDebug : Lexer() {
     override fun analyse(sql: String): Queue<Token> {
+        println("Debug print!")
+        println("\"$sql\"")
         return super.analyse(sql).also { it.printLexAnalyse(sql) }
     }
 }

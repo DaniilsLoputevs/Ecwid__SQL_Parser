@@ -2,81 +2,6 @@ package v1
 
 import java.util.*
 
-open class Lexer {
-    open fun analyse(sql: String): Queue<Token> = lex(sql)
-}
-
-val newLineOrTabCharSet = setOf('\n', '\r', '\t')
-
-/**
- * Особенности:
- * - Убрать:
- * -- Все пробелы, что больше одного.
- * -- Переносы срок.
- * -- Табуляция.
- * - Обход входной строки за O(n)
- * - обойтись без RegExp
- */
-fun lex(sql: String): Queue<Token> {
-    val rsl = LinkedList<Token>()
-    var tokenBuilder = StringBuilder()
-    var prevChar = ' '
-    var isCollectionStringValue = false
-    sql.forEachIndexed { index, char ->
-        if (prevChar == ' ' && char == prevChar || char in newLineOrTabCharSet) {
-            prevChar = char
-            return@forEachIndexed // forEach continue
-        }
-
-        // конец сбора string value в 1 token
-        if (isCollectionStringValue) {
-            if (char == '\'' && prevChar != '\\') {
-                tokenBuilder.append(char)
-                rsl += makeToken(index, tokenBuilder.toString())
-                tokenBuilder = StringBuilder()
-                isCollectionStringValue = false
-
-            } else
-                tokenBuilder.append(char)
-
-            return@forEachIndexed // forEach continue
-        }
-
-        when (char) {
-            ' ', ',', ';', '(', ')' -> {
-//                println("$index + '$char'")
-                if (tokenBuilder.isNotEmpty()) {
-                    rsl += makeToken(index - 1, tokenBuilder.toString())
-                    tokenBuilder = StringBuilder()
-                }
-                rsl += makeSingleCharToken(index, char.toString())
-            }
-
-            // начало сбора string value в 1 token
-            '\'' -> {
-                isCollectionStringValue = true
-                tokenBuilder.append(char)
-            }
-
-            else -> tokenBuilder.append(char)
-        }
-        prevChar = char
-    }
-
-    if (tokenBuilder.isNotEmpty()) // на случай когда в конце sql НЕТ SEMICOLON
-        rsl += makeToken(sql.length - 1, tokenBuilder.toString())
-
-    return rsl
-}
-
-fun makeToken(tokenEndIndex: Int, tokenStr: String): Token {
-    val tokenStartIndex = tokenEndIndex - (tokenStr.length - 1)
-    return Token(tokenStartIndex, tokenEndIndex, tokenStr, TokenType.of(tokenStr))
-}
-
-fun makeSingleCharToken(tokenIndex: Int, tokenStr: String): Token {
-    return Token(tokenIndex, tokenIndex, tokenStr, TokenType.of(tokenStr))
-}
 
 data class Token(
     /** Индекс первого символа Токена.text в изначальном sql.
@@ -140,36 +65,83 @@ enum class TokenType {
     }
 }
 
-/**
- * testcases:
- * - "SELECT * from users;" // canonical
- * - "SELECT * from users" // no semicolon
- * - "SELECT id from users" // no semicolon + one field
- * - "SELECT id, name from users" // no semicolon + 2 fields field
- * - "SELECT users.id, users.name from users" // no semicolon + 2 fields field + table.field
- * - "SELECT u.id, u.name from users u" // no semicolon + 2 fields field + alias.field
- * - "SELECT COUNT(*) users;" // func + arg: star
- * - "SELECT COUNT(id) users;" // func + arg: column
- * - "SELECT CONCAT('Hello, ', name) users;" // func + arg: string value + column
- *
- *
- * - "SELECT    id,\r  name  \r\n  from \n users" // no semicolon + 2 fields field + space & tab chars
- */
-//private val in1 = "SELECT id, name, users.email from users;"
-//private val in1 = "SELECT * from users;"
-//private val in1 = "SELECT \r\n*   from      users;"
-//private val in1 = "SELECT u.id, u.name, COUNT(*) from users u"
-private val in1 = "SELECT CONCAT('Hello, ', name) users;"
 
-/**
- * COUNT(arg1 : columns_expression) - в том числе и просто STAR('*')
- * todo - collect string value into one token
- *      - а что если Экранирование?
- *      - вложенные Кавычки?
- */
-fun main() {
-    val r1 = lex(in1)
-//    r1.printLexAnalyse()
-//    r1.forEach{ println("${it.startIndex}, ${it.endIndex}, ${it.text}. ${it.type}, s=${in1[it.startIndex]}, e=${in1[it.endIndex]}") }
-    println(r1)
+open class Lexer {
+
+    private val controlChars = setOf('\n', '\r', '\t', '\b')
+
+    /**
+     * Особенности:
+     * - Убрать:
+     * -- Все пробелы, что больше одного.
+     * -- Переносы срок.
+     * -- Табуляция.
+     * - Обход входной строки за O(n)
+     * - обойтись без RegExp
+     */
+    open fun analyse(sql: String): Queue<Token> {
+        val rsl = LinkedList<Token>()
+        var tokenBuilder = StringBuilder()
+        var prevChar = ' '
+        var isCollectionStringValue = false
+        sql.forEachIndexed { index, char ->
+            // пропускаем Control chars ['\n', '\r', '\t', '\b', \r\n]
+            if (char in controlChars) return@forEachIndexed // forEach continue
+
+            // 2 и более пробелов - должны считаться за 1 Token(type = SPACE)
+            if (prevChar == ' ' && char == prevChar) {
+                prevChar = char
+                return@forEachIndexed // forEach continue
+            }
+
+            // конец сбора string value в 1 token
+            if (isCollectionStringValue) {
+                if (char == '\'' && prevChar != '\\') {
+                    tokenBuilder.append(char)
+                    rsl += makeToken(index, tokenBuilder.toString())
+                    tokenBuilder = StringBuilder()
+                    isCollectionStringValue = false
+
+                } else
+                    tokenBuilder.append(char)
+
+                return@forEachIndexed // forEach continue
+            }
+
+            when (char) {
+                ' ', ',', ';', '(', ')' -> {
+//                println("$index + '$char'")
+                    if (tokenBuilder.isNotEmpty()) {
+                        rsl += makeToken(index - 1, tokenBuilder.toString())
+                        tokenBuilder = StringBuilder()
+                    }
+                    rsl += makeSingleCharToken(index, char.toString())
+                }
+
+                // начало сбора string value в 1 token
+                '\'' -> {
+                    isCollectionStringValue = true
+                    tokenBuilder.append(char)
+                }
+
+                else -> tokenBuilder.append(char)
+            }
+            prevChar = char
+        }
+
+        if (tokenBuilder.isNotEmpty()) // на случай когда в конце sql НЕТ SEMICOLON
+            rsl += makeToken(sql.length - 1, tokenBuilder.toString())
+
+        return rsl
+    }
+
+    private fun makeToken(tokenEndIndex: Int, tokenStr: String): Token {
+        val tokenStartIndex = tokenEndIndex - (tokenStr.length - 1)
+        return Token(tokenStartIndex, tokenEndIndex, tokenStr, TokenType.of(tokenStr))
+    }
+
+    private fun makeSingleCharToken(tokenIndex: Int, tokenStr: String): Token {
+        return Token(tokenIndex, tokenIndex, tokenStr, TokenType.of(tokenStr))
+    }
+
 }
