@@ -9,7 +9,7 @@ import io.kotest.matchers.should
 import java.util.*
 
 class LexerDebug : Lexer() {
-    override fun analyse(sql: String): Queue<Token> {
+    override fun analyse(sql: String): LinkedList<Token> {
         println("Debug print!")
         println("\"$sql\"")
         return super.analyse(sql).also { it.printLexAnalyse(sql) }

@@ -15,8 +15,9 @@ data class Token(
 )
 
 enum class TokenType {
-    SELECT, STAR, FROM, AS,
-    LEFT, RIGHT, INNER, OUTER, FULL, JOIN, ON,
+    SELECT, DISTINCT , STAR, FROM, AS,
+    LEFT, RIGHT, INNER, OUTER, FULL, CROSS, JOIN, ON,
+    WHERE,
     GROUP, BY, HAVING,
     LIMIT, OFFSET,
     AND, OR,
@@ -31,6 +32,7 @@ enum class TokenType {
     companion object {
         fun of(str: String): TokenType = when (str) {
             "select", "SELECT" -> SELECT
+            "distinct", "DISTINCT" -> DISTINCT
             "*" -> STAR
             "from", "FROM" -> FROM
             "as", "AS" -> AS
@@ -41,6 +43,7 @@ enum class TokenType {
             "full", "FULL" -> FULL
             "join", "JOIN" -> JOIN
             "on", "ON" -> ON
+            "where", "WHERE" -> WHERE
             "group", "GROUP" -> GROUP
             "by", "BY" -> BY
             "having", "HAVING" -> HAVING
@@ -79,7 +82,7 @@ open class Lexer {
      * - Обход входной строки за O(n)
      * - обойтись без RegExp
      */
-    open fun analyse(sql: String): Queue<Token> {
+    open fun analyse(sql: String): LinkedList<Token> {
         val rsl = LinkedList<Token>()
         var tokenBuilder = StringBuilder()
         var prevChar = ' '
@@ -101,7 +104,6 @@ open class Lexer {
                     rsl += makeToken(index, tokenBuilder.toString())
                     tokenBuilder = StringBuilder()
                     isCollectionStringValue = false
-
                 } else
                     tokenBuilder.append(char)
 

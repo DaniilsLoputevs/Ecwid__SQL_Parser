@@ -8,6 +8,8 @@ class SQLTree {
 
 /**
  * TableExpression
+ * ColumnExpression
+ * ValueExpression
  * PredicateExpression {
  *  -
  *  }

@@ -20,6 +20,32 @@ import v1.TokenType.*
  *
  *
  * + "SELECT    id,\r  name  \r\n  from \n users" // no semicolon + 2 fields field + space & tab chars
+ *
+ * Random examples:
+ * - SELECT f.title, f.did, d.name, f.date_prod, f.kind
+ *     FROM distributors d JOIN films f USING (did);
+ * - SELECT kind, sum(len) AS total FROM films GROUP BY kind;
+ * - SELECT kind, sum(len) AS total
+ *     FROM films
+ *     GROUP BY kind
+ *     HAVING sum(len) < interval '5 hours';
+ * - SELECT * FROM distributors ORDER BY name;
+ * - SELECT * FROM distributors ORDER BY 2;
+ * - SELECT m.name AS mname, pname
+ * FROM manufacturers m, LATERAL get_product_names(m.id) pname;
+ * - SELECT m.name AS mname, pname
+ * FROM manufacturers m LEFT JOIN LATERAL get_product_names(m.id) pname ON true;
+ * - SELECT 2+2;
+ * - SELECT TOP 5 C.CustomerID,
+ *          (SELECT SUM(TotalDue) FROM Sales.SalesOrderHeader H
+ *           WHERE H.CustomerID = C.CustomerID) AS TotalDue
+ *   FROM Sales.Customer C
+ *   ORDER BY TotalDue DESC;
+ * - SELECT * FROM (SELECT * FROM my_table FOR UPDATE) ss WHERE col1 = 5;
+ * -
+ * -
+ * -
+ * -
  */
 class LexerTest : FunSpec({
     val test = Lexer()
