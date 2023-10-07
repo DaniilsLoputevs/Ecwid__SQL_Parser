@@ -88,6 +88,13 @@ class ParserV2 {
         return root
     }
 
+    // fun scan(ASTNode : )
+    /**
+     * 1 - можно сразу схватывать KEYWORD для себя и отмечать флаги
+     * 2 - можно создавать Ноду и возвращать её, далее она обрабатывает токены, а мы кладёмся в stack, до её return FINISH
+     *      - наша ответственность знать Какие ноды доступны как НАШИ Дети
+     *      - FINISH == stack.remove(currentASTNode)
+     */
     open fun parseV2(analyseTokens: List<Token>): QContainer {
         val root = QContainer()
         var parserStrategy: ParseStrategy = ParseStrategy.SELECT(root, analyseTokens, 0)

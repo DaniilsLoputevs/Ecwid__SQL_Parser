@@ -100,6 +100,15 @@ class LexerTest : FunSpec({
             tokenStub(type = EXPRESSION),
         )
     }
+    test("keywords with Lower & Upper cases") {
+        testByAllContainsOrdered(
+            test, "SeLeCt id fRoM users",
+            tokenStub(type = SELECT), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION), tokenStub(type = SPACE),
+            tokenStub(type = FROM), tokenStub(type = SPACE),
+            tokenStub(type = EXPRESSION),
+        )
+    }
     test("no semicolon + 2 fields field + space & tab chars") {
         testByAllContainsOrdered(
             debug, "SELECT    id,\r  name  \r\n  from \n users",
@@ -110,4 +119,6 @@ class LexerTest : FunSpec({
             tokenStub(type = EXPRESSION),
         )
     }
+
+
 })

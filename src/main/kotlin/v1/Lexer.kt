@@ -14,8 +14,11 @@ data class Token(
     val type: TokenType
 )
 
+/**
+ * todo - LATERAL
+ */
 enum class TokenType {
-    SELECT, DISTINCT , STAR, FROM, AS,
+    SELECT, DISTINCT, STAR, FROM, AS,
     LEFT, RIGHT, INNER, OUTER, FULL, CROSS, JOIN, ON,
     WHERE,
     GROUP, BY, HAVING,
@@ -30,7 +33,20 @@ enum class TokenType {
     EXPRESSION; // ? STRING, NUMBER - оно нужно? в целом можно парсить отдельно... даже с number literals
 
     companion object {
-        fun of(str: String): TokenType = when (str) {
+        /**
+         * Примечание 1 - верим в удачу и порядочность юзеров, что они не станут писать Keyword так "SeLeCt * fRoM users"
+         * Примечание 2 - доверяй, но проверяй - чекаем кейс когда keyword имеет разные кейсы
+         */
+        fun of(str: String): TokenType {
+            if (str.startsWith('\'')) return EXPRESSION // CONSTANT String value
+            getKeyword(str) // примечание 1
+                ?.let { return it }
+                ?: getKeyword(str.uppercase(Locale.getDefault())) // примечание 1
+                    ?.let { return it }
+            return EXPRESSION
+        }
+
+        private fun getKeyword(str: String): TokenType? = when (str) {
             "select", "SELECT" -> SELECT
             "distinct", "DISTINCT" -> DISTINCT
             "*" -> STAR
@@ -63,7 +79,7 @@ enum class TokenType {
             "," -> COMMA
             " " -> SPACE
             ";" -> SEMICOLON
-            else -> EXPRESSION
+            else -> null
         }
     }
 }

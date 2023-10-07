@@ -16,6 +16,9 @@
 - [YouTube: SQL Parser Решения кандидатов](https://www.youtube.com/watch?v=VRWreSsSt7c)
 - [YouTube: SQL Parser, Infix, Extensions, Kotlin, DSL](https://www.youtube.com/watch?v=ggg-IFOheig)
 - [YouTube: Создаем свой ЯП. Лексер, Парсер, Абстрактное синтаксическое дерево (AST)](https://www.youtube.com/watch?v=Ezt3vBok5_s)
+- 
+- [пример решения #1](https://github.com/k1ll1n/ecwid-sql-parser/tree/master/src/main/kotlin/net/example/sqlp)
+- [пример решения #2](https://github.com/anasasiia/sql-parser)
 
 ## Tests
 
