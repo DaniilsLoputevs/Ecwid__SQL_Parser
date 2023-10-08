@@ -30,23 +30,24 @@ enum class TokenType {
     SINGLE_QUOTE,
     DOT, COMMA, SPACE,
     SEMICOLON,
-    EXPRESSION; // ? STRING, NUMBER - оно нужно? в целом можно парсить отдельно... даже с number literals
+    EXPRESSION; // ? CONSTANT, STRING, NUMBER - оно нужно? в целом можно парсить отдельно... даже с number literals
 
     companion object {
         /**
-         * Примечание 1 - верим в удачу и порядочность юзеров, что они не станут писать Keyword так "SeLeCt * fRoM users"
-         * Примечание 2 - доверяй, но проверяй - чекаем кейс когда keyword имеет разные кейсы
+         * Примечание 1 - верим в порядочность юзеров, что они не станут писать keyword так "SeLeCt * fRoM users".
+         * Примечание 2 - доверяй, но проверяй - проверяем кейс когда keyword имеет разные кейсы.
+         * Примечание 3 - если это не keyword в любых его допустимо-возможных формах, то это что-то из EXPRESSION [constant, func, table, column, ...].
          */
         fun of(str: String): TokenType {
             if (str.startsWith('\'')) return EXPRESSION // CONSTANT String value
-            getKeyword(str) // примечание 1
+            getKeywordOrNull(str) // примечание 1
                 ?.let { return it }
-                ?: getKeyword(str.uppercase(Locale.getDefault())) // примечание 1
-                    ?.let { return it }
+                ?: getKeywordOrNull(str.uppercase(Locale.getDefault())) // примечание 2
+                    ?.let { return it } // примечание
             return EXPRESSION
         }
 
-        private fun getKeyword(str: String): TokenType? = when (str) {
+        private fun getKeywordOrNull(str: String): TokenType? = when (str) {
             "select", "SELECT" -> SELECT
             "distinct", "DISTINCT" -> DISTINCT
             "*" -> STAR
