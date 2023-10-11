@@ -105,7 +105,7 @@ class ParserV2 {
 //            SELECT * ...
             when (parserStrategy.accept(index, token, token.type)) {
                 CONTINUE -> {}
-                NEXT -> {}
+                ParseStrategy.ParseAnswer.NEXT -> {}
                 FINISH -> {}
                 SWITCH -> {
                     parserStrategy = parseStrategy(token, root, analyseTokens, index)
@@ -154,6 +154,7 @@ class ParserV2 {
 val ls: String = lineSeparator()
 
 
+
 fun main() {
 //    val input = "SELECT id, users.name FROM users"
 //    val input = "SELECT id, users.name, COUNT(id) FROM users, attrs"
@@ -170,3 +171,4 @@ fun main() {
 //    val o0 = ParseStateStrategy.SELECT()
 //    val o1 = ParseStateStrategy.SELECT()
 }
+

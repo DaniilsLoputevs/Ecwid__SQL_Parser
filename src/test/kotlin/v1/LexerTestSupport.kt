@@ -9,10 +9,10 @@ import io.kotest.matchers.should
 import java.util.*
 
 class LexerDebug : Lexer() {
-    override fun analyse(sql: String): LinkedList<Token> {
+    override fun analyse(sql: String, isSkipSpaces: Boolean): LinkedList<Token> {
         println("Debug print!")
         println("\"$sql\"")
-        return super.analyse(sql).also { it.printLexAnalyse(sql) }
+        return super.analyse(sql, isSkipSpaces).also { it.printLexAnalyse(sql) }
     }
 }
 fun tokenStub(

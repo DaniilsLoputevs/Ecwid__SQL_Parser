@@ -65,14 +65,14 @@ class LexerTest : FunSpec({
         testByAllContainsOrdered(
             debug, "SELECT 'text_text_value'",
             tokenStub(type = SELECT), tokenStub(type = SPACE),
-            tokenStub(type = EXPRESSION, text = "'text_text_value'"),
+            tokenStub(type = CONSTANT, text = "'text_text_value'"),
         )
     }
     test("number value") {
         testByAllContainsOrdered(
             debug, "SELECT 10",
             tokenStub(type = SELECT), tokenStub(type = SPACE),
-            tokenStub(type = EXPRESSION, text = "10"),
+            tokenStub(type = CONSTANT, text = "10"),
         )
     }
     test("func value") {
@@ -120,5 +120,19 @@ class LexerTest : FunSpec({
         )
     }
 
-
 })
+/*
+(select * from users) +  posts +  substr(     'abc'    ,  :startIndex ,     3)         +     random()
+[sel,                 op, exp, op, func, l_p, const, comma, var,    comma, const, r_p, op, func, l_p, r_p]
+
+5 * 7 + (3 * 3)
+
+(12 + 4 / 2 <= :age * 2 || :age >= 18)
+
+    2   1    4      3   6       5
+(12 + 4 / 2 <= :age * 2 || :age >= 18)
+
+        2          1           4         3         6         5
+(12     +     4    /     2     <=  :age  *    2    ||  :age  >=    18)
+[const, op, const, op, const, bop, var, op, const, bop, var, bop, const]
+ */

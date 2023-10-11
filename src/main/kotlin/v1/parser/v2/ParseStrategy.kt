@@ -69,6 +69,8 @@ sealed class ParseStrategy {
         private var tokenLvl = 0
 
         override fun accept(tokenIndex: Int, token: Token, type: TokenType): ParseAnswer {
+            // todo - подумать на счёт sub-select
+            //          ? expectedParseType = ExpressionNode(interface) + when by pattern?
             return when (type) {
                 COMMA -> {
                     if (tokenLvl > 0) {
@@ -80,7 +82,7 @@ sealed class ParseStrategy {
                         ParseAnswer.NEXT
                     }
                 }
-                JOIN, WHERE, GROUP, HAVING , LIMIT, OFFSET -> {
+                JOIN, WHERE, GROUP, HAVING , LIMIT, OFFSET -> { // todo join это внтрянка для From
 
                     this.doOnFinish()
                     ParseAnswer.SWITCH

@@ -5,8 +5,8 @@ import v1.Token
 class TokensRange(
     val analyseTokens: List<Token>,
     val offsetIndex: Int,
-) : AbstractList<Token>() {
     var count: Int = 0
+) : AbstractList<Token>() {
     override val size: Int = count
 
     /**
@@ -30,8 +30,8 @@ class TokensRange(
     override fun toString(): String = this.joinToString(" ") { token -> token.text }
 
     inner class TokenIterator : ListIterator<Token> {
-        val firstTokenIndex: Int get() = offsetIndex + 1
-        val lastTokenIndex: Int get() = offsetIndex + count
+        private val firstTokenIndex: Int get() = offsetIndex + 1
+        private val lastTokenIndex: Int get() = offsetIndex + count
         private var index: Int = firstTokenIndex
 
         override fun hasNext(): Boolean = index <= lastTokenIndex
